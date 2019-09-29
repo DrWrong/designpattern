@@ -11,7 +11,7 @@ var ErrIllegalStateTransfer = errors.New("illegal state transfer")
 
 var stateHandlers = map[string]StateDesc{
 	"init": {
-		CanTransferTo: map[string]struct{}{
+		CanTransitTo: map[string]struct{}{
 			"fail":      {},
 			"auditPass": {},
 			"auditing":  {},
@@ -19,20 +19,20 @@ var stateHandlers = map[string]StateDesc{
 		Handler: new(InitStateHandler),
 	},
 	"auditing": {
-		CanTransferTo: map[string]struct{}{
+		CanTransitTo: map[string]struct{}{
 			"fail":      {},
 			"auditPass": {},
 		},
 	},
 	"auditPass": {
-		CanTransferTo: map[string]struct{}{
+		CanTransitTo: map[string]struct{}{
 			"fail":          {},
 			"deductSuccess": {},
 		},
 		Handler: new(AuditPassStateHandler),
 	},
 	"deductSuccess": {
-		CanTransferTo: map[string]struct{}{
+		CanTransitTo: map[string]struct{}{
 			"success": {},
 		},
 		Handler: new(DeductSuccessStateHandler),
@@ -40,8 +40,8 @@ var stateHandlers = map[string]StateDesc{
 }
 
 type StateDesc struct {
-	CanTransferTo map[string]struct{}
-	Handler       TransferStateHandler
+	CanTransitTo map[string]struct{}
+	Handler      TransferStateHandler
 }
 
 type TransferStateHandler interface {
@@ -65,7 +65,7 @@ func (t *Transfer) AfterLoad() {
 
 func (t *Transfer) TransitTo(state string) error {
 	desc := t.stateHandlerMap[t.State]
-	if _, exist := desc.CanTransferTo[state]; !exist {
+	if _, exist := desc.CanTransitTo[state]; !exist {
 		return ErrIllegalStateTransfer
 	}
 	t.State = state
