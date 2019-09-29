@@ -57,10 +57,7 @@ type Transfer struct {
 }
 
 func (t *Transfer) AfterLoad() {
-	t.stateHandlerMap = make(map[string]StateDesc, len(stateHandlers))
-	for _, desc := range stateHandlers {
-		t.stateHandlerMap[t.State] = desc
-	}
+	t.stateHandlerMap = stateHandlers
 }
 
 func (t *Transfer) TransitTo(state string) error {
